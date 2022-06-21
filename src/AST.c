@@ -22,16 +22,40 @@
  *  SOFTWARE.
  */
 
+#include <AST.h>
+#include <stdlib.h>
+#include <stddef.h>
 
-#include <parse.h>
-#include <scanner.h>
-#include <token.h>
+// Important for when we are deallocating resources.
+static struct ASTNode** nodes_allocd = NULL;
+static size_t allocd_nodes_idx = 0;
 
-struct Token current_token;
-
-void parse(void)
+struct ASTNode* mkastnode(struct ASTNode* left, struct ASTNode* right, AST_OP op, int64_t intval)
 {
-    scan(&current_token);
-    scan(&current_token);
-    scan(&current_token);
+    // Ensure nodes_allocd is not NULL, 
+    // otherwise allocate memory for it.
+    if (nodes_allocd == NULL)
+    {
+        nodes_allocd = malloc(sizeof(struct ASTnode*));
+    }
+
+    struct ASTNode* new = malloc(sizeof(struct ASTNode));
+    new->op = op;
+    new->left = left;
+    new->right = right;
+    new->intval = intval;
+    
+    // Add new node to allocd list.
+    nodes_allocd[allocd_nodes_idx++] = new;
+
+    // Realloc nodes_allocd list.
+    nodes_allocd = realloc(nodes_allocd, sizeof(struct ASTNode*) * (allocd_nodes_idx + 1));
+
+    return new;
 }
+
+struct ASTNode* mkastleaf(AST_OP op, int64_t intval)
+{
+    return mkastnode(NULL, NULL, op, intval);
+}
+

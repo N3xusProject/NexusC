@@ -59,7 +59,25 @@ bool scan(struct Token* token)
 {
 
     char ch = skip();
-    printf("%c\n", ch);
+
+    switch (ch)
+    {
+        case EOF:
+            token->type = TT_EOF;
+            return false;
+        case '+':
+            token->type = TT_PLUS;
+            break;
+        case '-':
+            token->type = TT_MINUS;
+            break;
+        case '*':
+            token->type = TT_STAR;
+            break;
+        case '/':
+            token->type = TT_SLASH;
+            break;
+    }
 
     return true;
 }

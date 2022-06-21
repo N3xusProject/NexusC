@@ -22,16 +22,33 @@
  *  SOFTWARE.
  */
 
+#ifndef AST_H
+#define AST_H
 
-#include <parse.h>
-#include <scanner.h>
-#include <token.h>
+#include <stdint.h>
 
-struct Token current_token;
 
-void parse(void)
+typedef enum
 {
-    scan(&current_token);
-    scan(&current_token);
-    scan(&current_token);
-}
+    A_INTLIT,
+    A_ADD,
+    A_SUB,
+    A_MUL,
+    A_DIV
+} AST_OP;
+
+
+struct ASTNode
+{
+    AST_OP op;
+    struct ASTNode* left;
+    struct ASTNode* right;
+    int64_t intval;
+};
+
+
+struct ASTNode* mkastnode(struct ASTNode* left, struct ASTNode* right, AST_OP op, int64_t intval);
+struct ASTNode* mkastleaf(AST_OP op, int64_t intval);
+
+
+#endif
