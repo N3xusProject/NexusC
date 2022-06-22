@@ -92,6 +92,12 @@ static char skip(void)
 }
 
 
+size_t get_line_num(void)
+{
+    return line_num;
+}
+
+
 bool scan(struct Token* token)
 {
 

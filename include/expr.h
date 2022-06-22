@@ -22,22 +22,13 @@
  *  SOFTWARE.
  */
 
+#ifndef EXPR_H
+#define EXPR_H
 
-#include <parse.h>
-#include <scanner.h>
-#include <token.h>
-#include <expr.h>
-#include <stdio.h>
+#include <AST.h>
 
-struct Token current_token;
+// Parses an expression like:
+// 1 + 1;
+struct ASTNode* binexpr(void);
 
-#define SCAN \
-    scan(&current_token);  \
-    printf("%d\n", current_token.type);
-
-void parse(void)
-{
-    SCAN;
-    struct ASTNode* expr = binexpr();
-    printf("%d\n", expr->right->op);
-}
+#endif

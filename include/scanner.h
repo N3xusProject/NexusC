@@ -28,8 +28,9 @@
 
 #include <token.h>
 #include <stdbool.h>
+#include <stddef.h>
 
 bool scan(struct Token* token);
-
+size_t get_line_num(void);
 
 #endif
