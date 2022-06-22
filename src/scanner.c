@@ -23,13 +23,22 @@
  */
 
 #include <scanner.h>
+#include <status.h>
+#include <ctype.h>
+#include <die.h>
 #include <stdio.h>
 #include <stddef.h>
+#include <stdint.h>
+#include <string.h>
 
 extern FILE* in_file;
 static size_t line_num = 1;
 
-static char next(void) {
+// Offset from base of in_file.
+static size_t fp_off = 0;
+
+static char next(void) 
+{
     char c = fgetc(in_file);
 
     if (c == '\n')
@@ -37,9 +46,37 @@ static char next(void) {
         ++line_num;
     }
 
+    ++fp_off;
     return c;
 }
 
+
+static void putback(void)
+{
+    fseek(in_file, --fp_off, SEEK_SET);
+}
+
+
+static int chrpos(char* s, int c)
+{
+    char* p = strchr(s, c);
+    return p ? p - s : -1;
+}
+
+
+static int64_t scan_int(char c)
+{
+    int k, val = 0;
+
+    while ((k = chrpos("0123456789", c)) >= 0)
+    {
+        val *= 10 + k;
+        c = next();
+    }
+
+    putback();
+    return val;
+}
 
 // Skips characters that are not needed.
 static char skip(void)
@@ -77,6 +114,16 @@ bool scan(struct Token* token)
         case '/':
             token->type = TT_SLASH;
             break;
+        default:
+            if (isdigit(ch))
+            {
+                token->type = TT_INTLIT;
+                token->intval = scan_int(ch);
+                return true;
+            }
+
+            printf(COMPILER_ERROR "Unexpected token while scanning on line %zu\n", line_num);
+            die(1);
     }
 
     return true;

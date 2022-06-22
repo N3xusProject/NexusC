@@ -23,20 +23,9 @@
  */
 
 
-#include <parse.h>
-#include <scanner.h>
-#include <token.h>
-#include <stdio.h>
+#ifndef STATUS_H
+#define STATUS_H
 
-struct Token current_token;
+#define COMPILER_ERROR "\e[0;31mERROR: "
 
-#define SCAN \
-    scan(&current_token);  \
-    printf("%d\n", current_token.type);
-
-void parse(void)
-{
-    SCAN;
-    SCAN;
-    SCAN;
-}
+#endif
