@@ -70,7 +70,7 @@ static int64_t scan_int(char c)
 
     while ((k = chrpos("0123456789", c)) >= 0)
     {
-        val *= 10 + k;
+        val = val * 10 + k;
         c = next();
     }
 

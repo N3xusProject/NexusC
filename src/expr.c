@@ -47,7 +47,7 @@ static struct ASTNode* primary(void)
     }
     else
     {
-        printf(COMPILER_ERROR "Caught unexpected token on line %zu\n", get_line_num());
+        printf(COMPILER_ERROR "Expected integer literal near line %zu\n", get_line_num());
         die(1);
     }
 

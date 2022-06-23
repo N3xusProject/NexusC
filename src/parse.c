@@ -28,6 +28,7 @@
 #include <token.h>
 #include <expr.h>
 #include <stdio.h>
+#include <stdint.h>
 
 struct Token current_token;
 
@@ -35,9 +36,40 @@ struct Token current_token;
     scan(&current_token);  \
     printf("%d\n", current_token.type);
 
+
+static int64_t interpret_ast(struct ASTNode* ast)
+{
+
+    int64_t leftval, rightval;
+
+    if (ast->left)
+    {
+        leftval = interpret_ast(ast->left);
+    }
+
+    if (ast->right)
+    {
+        rightval = interpret_ast(ast->right);
+    }
+
+    switch (ast->op)
+    {
+        case A_ADD:
+            return leftval + rightval;
+        case A_SUB:
+            return leftval - rightval;
+        case A_MUL:
+            return leftval * rightval;
+        case A_DIV:
+            return leftval / rightval;
+        case A_INTLIT:
+            return ast->intval;
+    }
+}
+
 void parse(void)
 {
     SCAN;
     struct ASTNode* expr = binexpr();
-    printf("%d\n", expr->right->op);
+    printf("RESULT: %ld\n", interpret_ast(expr));
 }
