@@ -22,20 +22,47 @@
  *  SOFTWARE.
  */
 
-
-#include <parse.h>
-#include <scanner.h>
-#include <token.h>
-#include <expr.h>
-#include <stdio.h>
-#include <stdint.h>
 #include <codegen.h>
+#include <stdio.h>
+#include <stddef.h>
 
-struct Token current_token;
+FILE* out_file = NULL;
 
-#define SCAN \
-    scan(&current_token);  \
-    printf("%d\n", current_token.type);
+
+static void genprologue(void)
+{
+    fputs(
+            "global main\n"
+            "default rel\n"
+            "extern printf\n"
+            "section .rodata\n"
+            "intfmt: db \"%d\", 0xA, 0\n"
+            "section .text\n"
+            "print_int:\n"
+            "\tpush rbp\n"
+            "\tmov rbp, rsp\n"
+            "\tsub rsp, 16\n"
+            "\tmov esi, edi\n"
+            "\tlea rdi, [rel intfmt]\n"
+            "\txor eax, eax\n"
+            "\tcall printf\n"
+            "\tleave\n"
+            "\tret\n"
+            "\nmain:\n"
+            "\tpush rbp\n"
+            "\tmov rbp, rsp\n"
+            "\tsub rsp, 16\n",
+            out_file);
+}
+
+
+static void genepilogue(void) 
+{
+    fputs(
+            "\tmov eax, 0\n"
+            "\tleave\n"
+            "\tret\n", out_file);
+}
 
 
 static int64_t interpret_ast(struct ASTNode* ast)
@@ -43,14 +70,14 @@ static int64_t interpret_ast(struct ASTNode* ast)
 
     int64_t leftval, rightval;
 
-    if (ast->left)
-    {
-        leftval = interpret_ast(ast->left);
-    }
-
     if (ast->right)
     {
         rightval = interpret_ast(ast->right);
+    }
+
+    if (ast->left)
+    {
+        leftval = interpret_ast(ast->left);
     }
 
     switch (ast->op)
@@ -66,11 +93,15 @@ static int64_t interpret_ast(struct ASTNode* ast)
         case A_INTLIT:
             return ast->intval;
     }
+
+    return 1;
 }
 
-void parse(void)
+
+void gencode(struct ASTNode* ast)
 {
-    SCAN;
-    struct ASTNode* expr = binexpr();
-    gencode(NULL);
+    out_file = fopen("/tmp/nexcc_out.s", "w");
+    genprologue();
+    genepilogue();
+    fclose(out_file);
 }
